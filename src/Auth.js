@@ -3,16 +3,21 @@ import { supabase } from './supabaseClient'
 
 export default function Auth() {
   const [loading, setLoading] = useState(false)
+  const [signUp, setSignUp] = useState(true)
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   const handleLogin = async (e) => {
     e.preventDefault()
 
     try {
       setLoading(true)
-      const { error } = await supabase.auth.signIn({ email })
+      const { error } = signUp ?
+        await supabase.auth.signUp({ email, password })
+        :
+        await supabase.auth.signIn({ email, password })
+
       if (error) throw error
-      alert('Check your email for the login link!')
     } catch (error) {
       alert(error.error_description || error.message)
     } finally {
@@ -23,10 +28,10 @@ export default function Auth() {
   return (
     <div className="row flex flex-center">
       <div className="col-6 form-widget" aria-live="polite">
-        <h1 className="header">Supabase + React</h1>
-        <p className="description">Sign in via magic link with your email below</p>
+        <h3>Authenticate</h3>
+        <p></p>
         {loading ? (
-          'Sending magic link...'
+          'Signing in...'
         ) : (
           <form onSubmit={handleLogin}>
             <label htmlFor="email">Email</label>
@@ -38,8 +43,21 @@ export default function Auth() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <button className="button block" aria-live="polite">
-              Send magic link
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              className="inputField"
+              type="password"
+              placeholder="Your password"
+              value={password}
+              minlength="6"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button onClick={() => setSignUp(true)} className="button block" aria-live="polite">
+              Sign up
+            </button>
+            <button onClick={() => setSignUp(false)} className="button block" aria-live="polite">
+              Sign in
             </button>
           </form>
         )}
